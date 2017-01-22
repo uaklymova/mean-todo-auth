@@ -1,0 +1,52 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+
+  <title>Todo App</title>
+
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script><!-- load angular -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+  <!--<script src="javascripts/main.js"></script>-->
+
+</head>
+<body ng-app="appTodo">
+<div class="row">
+  <div class="col-md-6 col-md-offset-3">
+    <ui-view></ui-view>
+  </div>
+</div>
+<script type="text/ng-template">
+  <div class="container">
+  <div class="jumbotron text-center">
+    <h1>I'm a Todo-aholic <span class="label label-info">{{ todos.length }}</span></h1>
+  </div>
+
+  <div id="todo-list" class="row">
+    <div class="col-sm-4 col-sm-offset-4">
+      <div class="checkbox" ng-repeat="todo in todos">
+        <label id="todo-text">
+          <input type="checkbox" ng-click="deleteTodo(todo._id)"> {{ todo.text }}
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div id="todo-form" class="row">
+    <div class="col-sm-8 col-sm-offset-2 text-center">
+      <form>
+        <div class="form-group">
+          <input type="text" class="form-control input-lg text-center" placeholder="I want to buy a puppy that will love me forever" ng-model="formData.text">
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" ng-click="createTodo()">Add</button>
+      </form>
+    </div>
+  </div>
+
+          </div>
+</script>
+</body>
+</html>
