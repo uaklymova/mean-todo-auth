@@ -4,12 +4,15 @@
 
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
 
-  <<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.4.2/angular-ui-router.js"></script>
   <script src="javascripts/angularApp.js"></script>
   <style> .glyphicon-thumbs-up { cursor:pointer } </style>
+
+  <link rel="stylesheet" href="stylesheets/style.css">
 </head>
 <body ng-app="todoApp">
+
 
     <ui-view></ui-view>
 
@@ -19,7 +22,6 @@
         <p>Won't you please <a href="/#!/login">sign in</a> or <a href="/#!/register">register</a>?</p>
       </div>
     </script>
-
     <script type="text/ng-template" id="/login.html">
       <div class="container">
         <div class="row">
@@ -78,28 +80,40 @@
               </div>
               <button type="submit" class="btn btn-primary">Register</button>
             </form>
-
-            <!--<form>-->
-              <!--<div class="form-group">-->
-                <!--<label for="username">username</label>-->
-                <!--<input type="text" class="form-control" id="username" placeholder="Enter username">-->
-              <!--</div>-->
-              <!--<div class="form-group">-->
-                <!--<label for="password">Password</label>-->
-                <!--<input type="password" class="form-control" id="password" placeholder="Password">-->
-              <!--</div>-->
-              <!--<button type="submit" class="btn btn-default">Register!</button>-->
-            <!--</form>-->
           </div>
         </div>
-
       </div>
     </script>
     <script type="text/ng-template" id="/profile.html">
-      <div>
-        Profile
-        <div ng-repeat="todo in todos">
-          {{todo.text}}
+
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <h1>Profile</h1>
+
+            <div id="todo-list" class="row">
+              <div class="col-sm-4 col-sm-offset-4">
+                <div ng-repeat="todo in todos.data">
+                  <label id="todo-text">
+                    <input type="checkbox">{{ todo.text }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+
+            <div id="todo-form" class="row">
+              <div class="col-sm-8 col-sm-offset-2 text-center">
+                <form>
+                  <div class="form-group">
+                    <input type="text" class="form-control input-lg text-center"  placeholder="I want to buy a puppy " ng-model="todo.text">
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-lg" ng-click="createTodo()"> Add</button>
+                </form>
+              </div>
+            </div>
+
+          </div>
         </div>
       </div>
     </script>

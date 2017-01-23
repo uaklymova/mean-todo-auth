@@ -1,3 +1,6 @@
+html { overflow-y:scroll;}
+#todo-list { margin-bottom:30px; }
+#todo-text { font-weight: bold;}
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;

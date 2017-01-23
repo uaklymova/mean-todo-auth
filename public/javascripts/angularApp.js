@@ -10,90 +10,80 @@ app.config(['$stateProvider', '$urlRouterProvider',
             .state('login', {
                 url : '/login',
                 templateUrl : '/login.html',
-                controller : 'AuthCtrl'
+                controller : 'AuthCtrl',
+                // onEnter : ['$state', 'auth',
+                //     function($state, auth) {
+                //         if (auth.isLoggedIn()) {
+                //             $state.go('profile');
+                //         }
+                //     }]
             })
             .state('register', {
                 url : '/register',
                 templateUrl : '/register.html',
-                controller : 'AuthCtrl'
+                controller : 'AuthCtrl',
+                // onEnter : ['$state', 'auth',
+                //     function($state, auth) {
+                //         if (auth.isLoggedIn()) {
+                //             $state.go('profile');
+                //         }
+                //     }]
             })
             .state('profile', {
                 url : '/profile',
                 templateUrl : '/profile.html',
-                controller : 'MainCtrl'
-                // resolve : {
-                //     todoPromise : ['todos',
-                //         function(todos) {
-                //             return todos.getAll();
-                //         }]
-                //
-                // }
+                controller : 'ProfileCtrl',
+                onEnter : ['$state', 'auth',
+                    function($state, auth) {
+                        if (!auth.isLoggedIn()) {
+                            $state.go('home');
+                        }}],
+                resolve : {
+                    todoPromise : ['todos',
+                        function(todos) {
+                            console.log(todos.getAll());
+                            return todos.getAll();
+                        }]
+
+                }
 
             });
 
         $urlRouterProvider.otherwise('home');
     }]);
 
-app.factory('todos', ['$http',
-    function($http) {
+app.factory('todos', ['$http','auth',
+    function($http, auth) {
         var o = {
             todos : []
         };
         o.getAll = function() {
-            // return $http.get('/users/:user/todos').success(function(data) {
-            return $http.get('/users').success(function(data) {
-
-                angular.copy(data, o.todos);
-            });
-        };
-        o.create = function(post) {
-            return $http.post('/posts', post, {
+            return $http.get('/users/:user/todos', {
+            // return $http.get('/users/'+id+'/todos', {
                 headers: {Authorization: 'Bearer '+auth.getToken()}
-            }).success(function(data){
-                o.posts.push(data);
+            // }).then(function(res) {
+            //     angular.copy(res.data, o.todos);
+            }).then(function(res) {
+                angular.copy(res, o.todos);
+                console.log(o.todos);
             });
         };
-
-
-        o.get = function(id) {
-            //use the express route to grab this post and return the response
-            //from that route, which is a json of the post data
-            //.then is a promise, a kind of newly native thing in JS that upon cursory research
-            return $http.get('/posts/' + id).then(function(res) {
-                return res.data;
-            });
-        };
-        //using express
-        o.addComment = function(id, comment) {
-            return $http.post('/posts/' + id + '/comments', comment, {
+        o.createTodo = function(todo) {
+            return $http.post('/users/:user/todos', todo, {
                 headers: {Authorization: 'Bearer '+auth.getToken()}
+            }).then(function(data){
+                console.log(auth.getToken);
+                o.todos.push(data);
             });
         };
 
         return o;
     }]);
 
-
 app.controller('MainCtrl', ['$scope',
     function($scope) {
-        // $scope.posts = posts.posts;
-        // $scope.isLoggedIn = auth.isLoggedIn;
-        // $scope.title = '';
-        //
-        // $scope.addPost = function() {
-        //     if ($scope.title === '') {
-        //         return;
-        //     }
-        //     posts.create({
-        //         title : $scope.title,
-        //         link : $scope.link,
-        //     });
-        //     //clear the values
-        //     $scope.title = '';
-        //     $scope.link = '';
-        // };
+;
     }]);
-
 app.factory('auth', ['$http', '$window',
     function($http, $window) {
         var auth = {};
@@ -108,6 +98,7 @@ app.factory('auth', ['$http', '$window',
 
         auth.isLoggedIn = function() {
             var token = auth.getToken();
+            console.log("isLoggedIn "+ token);
 
             if (token) {
                 var payload = JSON.parse($window.atob(token.split('.')[1]));
@@ -117,24 +108,23 @@ app.factory('auth', ['$http', '$window',
                 return false;
             }
         };
-
-        auth.currentUser = function() {
-            if (auth.isLoggedIn()) {
-                var token = auth.getToken();
-                var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-                return payload.username;
-            }
-        };
-
+        // auth.currentUser = function() {
+        //     if (auth.isLoggedIn()) {
+        //         var token = auth.getToken();
+        //         var payload = JSON.parse($window.atob(token.split('.')[1]));
+        //
+        //         return payload.username;
+        //     }
+        // };
         auth.register = function(user) {
-            return $http.post('/register', user).then(function(data) {
-                auth.saveToken(data.token);
+            return $http.post('/register', user).then(function(res) {
+                auth.saveToken(res.data.token);
             });
         };
         auth.logIn = function(user) {
-            return $http.post('/login', user).then(function(data) {
-                auth.saveToken(data.token);
+            return $http.post('/login', user).then(function(res) {
+                console.log('fe - login token' + res.data.token);
+                auth.saveToken(res.data.token);
             });
         };
 
@@ -142,10 +132,16 @@ app.factory('auth', ['$http', '$window',
             $window.localStorage.removeItem('appTodo');
         };
 
+        // auth.getProfile = function () {
+        //     return $http.get('/users/:user/todos', {
+        //         headers: {
+        //             Authorization: 'Bearer '+ auth.getToken()
+        //         }
+        //     });
+        // };
+
         return auth;
     }]);
-
-
 app.controller('AuthCtrl', ['$scope', '$state', 'auth',
     function($scope, $state, auth) {
         $scope.user = {
@@ -170,5 +166,35 @@ app.controller('AuthCtrl', ['$scope', '$state', 'auth',
             }).catch(function(error) {
                 $scope.error = error;
             });
+        };
+        $scope.logOut = function(){ auth.logOut().then(function() {
+            $state.go('home');
+        }).catch(function(error) {
+            $scope.error = error;
+        });}
+    }
+]);
+app.controller('ProfileCtrl', ['$scope', '$state', 'todos', 'auth',
+    function($scope, $state, todos) {
+        $scope.todos =todos.todos;
+        $scope.createTodo = function() {
+            todos.createTodo($scope.todo).
+                then(function() {
+                    $state.go('profile');
+                })
+                .catch(function(error) {
+                    $scope.error = error;
+                });
+        };
+
+        $scope.getAll = function() {
+            todos.getAll()
+                .then(function (data) {
+                    console.log(data);
+                    $scope.todos = data;
+                    $state.go('profile');
+                }).catch(function (error) {
+                $scope.error = error;
+            })
         };
     }]);
