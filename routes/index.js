@@ -69,7 +69,7 @@ router.get('/users/:user/todos', function(req, res, next) {
   });
 });
 
-router.post('/users/:user/todos', function(req, res, next) {
+router.post('/users/:user/todos', /*auth,*/ function(req, res, next) {
   var todo = new Todo(req.body);
   todo.text = req.body.text;
   // todo.user = req.payload._id;
@@ -77,16 +77,19 @@ router.post('/users/:user/todos', function(req, res, next) {
 
   todo.save(function(err, todo){
     if(err){ return next(err); }
-
-    // req.post.comments.push(comment);
-    // req.todo.save(function(err, todo) {
-    //   if(err){ return next(err); }
-    //
-    //   res.json(todo);
-    // });
     res.json(todo);
   });
 });
 
+router.delete('/users/:user/todos/:todo_id', function (req, res) {
+  Todo.remove({
+    _id: req.params.todo_id
+  }, function (err, todo) {
+    if (err)
+      res.send(err);
+
+    getTodos(res);
+  });
+});
 
 module.exports = router;
