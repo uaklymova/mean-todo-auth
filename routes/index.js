@@ -54,9 +54,6 @@ router.post('/login', function(req, res, next){
   passport.authenticate('local', function(err, user, info){
     if(err){return next(err); }
     if(user){
-
-      console.log("login success. User token is: " + user.generateJWT());
-
       return res.json({token: user.generateJWT()});
     } else {
       return res.status(401).json(info);
@@ -65,18 +62,10 @@ router.post('/login', function(req, res, next){
 });
 
 router.get('/users/:user/todos', auth, function(req, res, next) {
-  console.log('in todo on Profile Page');
   var body = req.body;
   var userId = req.payload._id;
   
-  console.log(req.payload);
   //check if user exist
-  //   if(!User.findById(userId)) {
-  //     console.log('Not a user!');
-  //     return "sorry";
-  //
-  //   }
-
   Todo.find({user: userId}, function(err, todos) {
     if (err) {
       return next(err);
@@ -92,13 +81,6 @@ router.post('/users/:user/todos', auth, function(req, res, next) {
   todo.user = req.payload._id;
 
   //here should be checking in DB
-//   if (!User.findById(req.payload._id), function (err, doc){
-//     // doc is a Document
-//   });
-//   { console.log(todo.user);
-// }
-
-  console.log(req.payload);
 
   todo.save(function(err, todo){
     if(err){ return next(err); }
